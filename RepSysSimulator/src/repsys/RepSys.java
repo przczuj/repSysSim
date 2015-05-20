@@ -43,5 +43,9 @@ public class RepSys {
         a.rep = aRep;
         b.rep = bRep;
     }
+
+    public int getBin() {
+        return rSys;
+    }
     
 }
