@@ -1,0 +1,89 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package repsys;
+
+import static repsys.BinaryUtils.*;
+
+/**
+ *
+ * @author ETIS
+ */
+public class SimulationEnvirenment {
+    public final static ReputatuinGenerator REP_RANDOM = new ReputatuinGenerator() {
+        @Override public boolean getReputation() {
+            return Math.random() < 0.5;
+        }
+    };
+    public final static ReputatuinGenerator REP_TRUE = new ReputatuinGenerator() {
+        @Override public boolean getReputation() {
+            return true;
+        }
+    };
+    public final static ReputatuinGenerator REP_FALSE = new ReputatuinGenerator() {
+        @Override public boolean getReputation() {
+            return false;
+        }
+    };
+    
+    public final static int SCORE_B_VALUE = 3;
+    public final static int SCORE_C_VALUE = 2;
+    
+    private RepSys rSys;
+    private int populationSize = 1000;
+    private int mutantsCount = 50;
+
+    private double meanScore = 0.0;
+    private Agent[] agents;
+    
+    public SimulationEnvirenment(RepSys rSys, int populationSize, int mutantsCount) {
+        this.rSys = rSys;
+        this.populationSize = populationSize;
+        this.mutantsCount = mutantsCount;
+        agents = new Agent[populationSize];
+    }
+    
+    public interface ReputatuinGenerator {
+        boolean getReputation();
+    }
+
+    public void repopulate(int normStrat, int mutStrat, double errChance, ReputatuinGenerator repGen) {
+        for (int i = 0; i < mutantsCount; i++) {
+            agents[i] = new Agent(repGen.getReputation(), mutStrat, errChance);
+        }
+        for (int i = mutantsCount; i < populationSize; i++) {
+            agents[i] = new Agent(repGen.getReputation(), normStrat, errChance);
+        }
+    }
+
+    public void simulate(int transactionsPerAgent) {
+        for (int i = 0; i < populationSize * transactionsPerAgent; i++) {
+            int a, b;
+            do {
+                a = (int)(Math.random() * populationSize);
+                b = (int)(Math.random() * populationSize);
+            } while (a == b);
+            Agent.makeTransaction(agents[a], agents[b]);
+            rSys.giveReputations(agents[a], agents[b]);
+        }
+    }
+
+    public double getMeanScore(int first, int last) {
+        double meanScore = 0.0;
+        double rangeSize = (last - first + 1);
+        for (int i = first; i <= last; i++) {
+            meanScore += agents[i].getMeanScore(SCORE_B_VALUE, SCORE_C_VALUE);
+        }
+        return meanScore / rangeSize;
+    }
+
+    public double getMutantsMeanScore() {
+        return getMeanScore(0, mutantsCount - 1);
+    }
+
+    public double getNormalsMeanScore() {
+        return getMeanScore(mutantsCount, populationSize - 1);
+    }
+}
