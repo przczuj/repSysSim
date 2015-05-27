@@ -22,4 +22,8 @@ public final class BinaryUtils {
     public static String binPrint(int a, int nums) {
         return String.format("%" + nums + "s", Integer.toBinaryString(a)).replace(' ', '0');
     }
+    
+    public static String binPrintHelp(int a, int nums) {
+        return String.format("%s(%03d)", binPrint(a, nums), a);
+    }
 }

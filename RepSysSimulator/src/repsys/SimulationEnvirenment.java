@@ -35,7 +35,8 @@ public class SimulationEnvirenment {
     private int populationSize = 1000;
     private int mutantsCount = 50;
 
-    private double meanScore = 0.0;
+    private double normalsMeanScore = 0.0;
+    private double mutantsMeanScore = 0.0;
     private Agent[] agents;
     
     public SimulationEnvirenment(RepSys rSys, int populationSize, int mutantsCount) {
@@ -50,6 +51,8 @@ public class SimulationEnvirenment {
     }
 
     public void repopulate(int normStrat, int mutStrat, double errChance, ReputatuinGenerator repGen) {
+        normalsMeanScore = 0.0;
+        mutantsMeanScore = 0.0;
         for (int i = 0; i < mutantsCount; i++) {
             agents[i] = new Agent(repGen.getReputation(), mutStrat, errChance);
         }
@@ -59,6 +62,8 @@ public class SimulationEnvirenment {
     }
 
     public void simulate(int transactionsPerAgent) {
+        normalsMeanScore = 0.0;
+        mutantsMeanScore = 0.0;
         for (int i = 0; i < populationSize * transactionsPerAgent; i++) {
             int a, b;
             do {
@@ -80,10 +85,16 @@ public class SimulationEnvirenment {
     }
 
     public double getMutantsMeanScore() {
-        return getMeanScore(0, mutantsCount - 1);
+        if (mutantsMeanScore == 0.0) {
+            mutantsMeanScore = getMeanScore(0, mutantsCount - 1);
+        }
+        return mutantsMeanScore;
     }
 
     public double getNormalsMeanScore() {
-        return getMeanScore(mutantsCount, populationSize - 1);
+        if (normalsMeanScore == 0.0) {
+            normalsMeanScore = getMeanScore(mutantsCount, populationSize - 1);
+        }
+        return normalsMeanScore;
     }
 }

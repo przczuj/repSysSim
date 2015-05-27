@@ -38,7 +38,7 @@ public class SystemSimulation {
         this.repGen = repGen;
     }
     
-    public boolean isStable(RepSys repSys, int normStrat) {
+    public boolean isStable(RepSys repSys, int normStrat, double mutantScoreBonus, boolean print) {
         SimulationEnvirenment sys = new SimulationEnvirenment(repSys, populationSize, mutantCount);
         
         for (int mutStratBin = 0; mutStratBin < 16; mutStratBin++) {
@@ -46,21 +46,25 @@ public class SystemSimulation {
                 for (int c = 0; c < stabilityCheckRepetition; c++) {
                     sys.repopulate(normStrat, mutStratBin, agentErrChance, repGen);
                     sys.simulate(transactionsPerAgent);
-                    if (sys.getMutantsMeanScore() > sys.getNormalsMeanScore()) {
+                    if (sys.getMutantsMeanScore() + mutantScoreBonus > sys.getNormalsMeanScore()) {
                         //System.out.println("unstable! " + binPrint(s1, 4) + " " + binPrint(s2, 4));
                         return false;
                     }
                 }
-                System.out.printf("rep:%s(%d) strat:%s(%d) mutStrat: %s mutScore=%f normScore=%f\n", 
-                        binPrint(repSys.getBin(), 8), repSys.getBin(),
-                        binPrint(normStrat, 4), normStrat,
-                        binPrint(mutStratBin, 4), sys.getMutantsMeanScore(), sys.getNormalsMeanScore());
+                if (print) {
+                    System.out.printf("rep:%s strat:%s mutStrat:%s mutScore=%f normScore=%f diff=%f\n",
+                            binPrintHelp(repSys.getBin(), 8),
+                            binPrintHelp(normStrat, 4),
+                            binPrintHelp(mutStratBin, 4), 
+                            sys.getMutantsMeanScore(), sys.getNormalsMeanScore(),
+                            sys.getNormalsMeanScore() - sys.getMutantsMeanScore());
+                }
             }
         }
         return true;
     }
 
-    public void execute(double minMeanScore) {
+    public void execute(double minMeanScore, double mutantScoreBonus, boolean mutationPrint) {
         
         double bestMeanScore = 0;
         int bestStrategy = 0;
@@ -71,18 +75,18 @@ public class SystemSimulation {
             SimulationEnvirenment simEnv = new SimulationEnvirenment(repSys, populationSize, mutantCount);
             
             for (int normStratBin = 0; normStratBin < 16; normStratBin++) {
-                boolean isStable = isStable(repSys, normStratBin);
+                boolean isStable = isStable(repSys, normStratBin, mutantScoreBonus, mutationPrint);
                 boolean toPrint = isStable;
                 
                 if (toPrint) {
                     simEnv.repopulate(normStratBin, normStratBin, agentErrChance, repGen);
                     simEnv.simulate(transactionsPerAgent);
-                    if (/*simEnv.getNormalsMeanScore() > minMeanScore*/true) {
-                        System.out.printf("%srep:%s(%d) strat:%s(%d) flow:%s(%d) normMean:%f\n",
+                    if (simEnv.getNormalsMeanScore() > minMeanScore) {
+                        System.out.printf("%srep:%s strat:%s flow:%s normMean:%f\n",
                                 isStable ? "!stable strategy! " : "",
-                                binPrint(repSysBin, 8), repSysBin,
-                                binPrint(normStratBin, 4), normStratBin,
-                                binPrint(repFlow(repSysBin, normStratBin), 4), repFlow(repSysBin, normStratBin),
+                                binPrintHelp(repSysBin, 8),
+                                binPrintHelp(normStratBin, 4),
+                                binPrintHelp(repFlow(repSysBin, normStratBin), 4),
                                 simEnv.getNormalsMeanScore());
                     }
                     if(isStable && simEnv.getNormalsMeanScore() > bestMeanScore) {
@@ -93,24 +97,26 @@ public class SystemSimulation {
                 }
             }
         }
-        System.out.printf("best strategy = rep:%s(%d) strat:%s(%d) flow:%s(%d) normMean:%f\n",
-                binPrint(bestStrategy, 8), bestStrategy,
-                binPrint(bestStrategyBehavior, 4), bestStrategyBehavior,
-                binPrint(repFlow(bestStrategy, bestStrategyBehavior), 4), repFlow(bestStrategy, bestStrategyBehavior),
+        System.out.printf("best strategy = rep:%s strat:%s flow:%s normMean:%f\n",
+                binPrintHelp(bestStrategy, 8),
+                binPrintHelp(bestStrategyBehavior, 4),
+                binPrintHelp(repFlow(bestStrategy, bestStrategyBehavior), 4),
                 bestMeanScore);
     }
     
     public static void main(String [] args) {
         new SystemSimulation(
-                4,     // stabilityCheckRepetition
-                1000,   // populationSize
-                50,     // mutantCount
-                1000,   // transactionsPerAgent
-                0.0,    // agentErrChance
-                0.0,    // repSysErrChance
+                1,      // stabilityCheckRepetition (1)
+                1000,   // populationSize (1000)
+                50,     // mutantCount (50)
+                1000,   // transactionsPerAgent (1000)
+                0.1,    // agentErrChance (0)
+                0.1,    // repSysErrChance (0)
                 SimulationEnvirenment.REP_RANDOM
         ).execute(
-                0.0     // minMeanScore
+                0.11,   // minMeanScore (0.0)
+                0.05,   // mutantScoreBonus (1.0)
+                true    // mutantPrint (false)
         );
     }
 }
