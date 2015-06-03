@@ -28,7 +28,7 @@ public class SimulationEnvirenment {
         }
     };
     
-    // todo: REP_TURN
+    // todo: REP_TURN <- 
     
     public final static int SCORE_B_VALUE = 3;
     public final static int SCORE_C_VALUE = 2;
