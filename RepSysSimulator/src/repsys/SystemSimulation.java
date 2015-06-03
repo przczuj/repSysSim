@@ -82,7 +82,7 @@ public class SystemSimulation {
                     simEnv.repopulate(normStratBin, normStratBin, agentErrChance, repGen);
                     simEnv.simulate(transactionsPerAgent);
                     if (simEnv.getNormalsMeanScore() > minMeanScore) {
-                        System.out.printf("%srep:%s strat:%s flow:%s normMean:%f\n",
+                        System.out.printf("%srep:%s strat:%s flow:%s normScore:%f\n",
                                 isStable ? "!stable strategy! " : "",
                                 binPrintHelp(repSysBin, 8),
                                 binPrintHelp(normStratBin, 4),
@@ -97,7 +97,7 @@ public class SystemSimulation {
                 }
             }
         }
-        System.out.printf("best strategy = rep:%s strat:%s flow:%s normMean:%f\n",
+        System.out.printf("best strategy = rep:%s strat:%s flow:%s normScore:%f\n",
                 binPrintHelp(bestStrategy, 8),
                 binPrintHelp(bestStrategyBehavior, 4),
                 binPrintHelp(repFlow(bestStrategy, bestStrategyBehavior), 4),
