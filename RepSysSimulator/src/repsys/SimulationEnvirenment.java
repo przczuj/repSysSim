@@ -1,15 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package repsys;
 
 import static repsys.BinaryUtils.*;
 
 /**
  *
- * @author ETIS
+ * @author Przemysław Czuj
  */
 public class SimulationEnvirenment {
     public final static ReputatuinGenerator REP_RANDOM = new ReputatuinGenerator() {
@@ -27,8 +22,13 @@ public class SimulationEnvirenment {
             return false;
         }
     };
-    
-    // todo: REP_TURN <-- 
+    public final static ReputatuinGenerator REP_TURN = new ReputatuinGenerator() {
+        boolean last = true;
+        @Override
+        public boolean getReputation() {
+            return last = !last;
+        }
+    };
     
     public final static int SCORE_B_VALUE = 3;
     public final static int SCORE_C_VALUE = 2;
